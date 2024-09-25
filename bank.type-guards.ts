@@ -5,8 +5,8 @@ import type {
   CorporateInvestmentAccount,
   IndividualInvestmentAccount,
   InvestmentAccount
-} from './bank.types';
-import {BankAccountSubType, BankAccountType} from './bank.enums';
+} from './bank.types.ts';
+import {BankAccountSubType, BankAccountType} from './bank.enums.ts';
 
 export const hasWithdrawalLimit = (account: BankAccount): account is AccountWithLimit => {
   return 'withdrawalLimit' in account;

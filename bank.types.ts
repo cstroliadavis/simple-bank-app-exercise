@@ -3,7 +3,7 @@ import {
   BankAccountType,
   TransactionStatus,
   TransactionType
-} from './bank.enums';
+} from './bank.enums.ts';
 
 export type Bank = {
   name: string;
@@ -34,12 +34,16 @@ export type BankAccount = {
   owner: string;
   balance: number;
   type: BankAccountType;
+  subType?: BankAccountSubType;
   transactions: Transaction[],
-  applyTransaction: (transaction: Transaction) => void;
 }
 
 export type AccountWithLimit = BankAccount & {
   withdrawalLimit: number;
+}
+
+export type BankAccountWithMethods = BankAccount & {
+  applyTransaction: (transaction: Transaction) => void;
 }
 
 export type CheckingAccount = BankAccount & {
