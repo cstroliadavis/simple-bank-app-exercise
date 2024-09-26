@@ -149,7 +149,13 @@ it(investmentAccount, 'has a withdrawal transaction that updates the balance', a
   await account.applyTransaction(transaction);
 
   expect(account.balance).toBe(2300);
-})
+});
+
+// TODO: add tests for exceeding maximum withdrawal, verifying funds are available, verifying that
+//       deposits are positive and withdrawals are negative, etc.
+it.skip(investmentAccount, 'will fail if account is individual and withdrawal exceeds limit', async () => {});
+
+it.skip(investmentAccount, 'will fail if request is more than amount available.', async () => {});
 
 const tranfer = describe({name: 'transfer', suite: transactions});
 
