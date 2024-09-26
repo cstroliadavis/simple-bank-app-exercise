@@ -59,3 +59,10 @@ it(bank, 'has a name', () => {
   expect(Object.values(testData).every((b) => 'name' in b && typeof b.name === 'string'))
     .toBe(true);
 })
+
+it(bank, 'can have several accounts', () => {
+  const testData = getTestData();
+
+  expect(Object.values(testData).every((b) => 'accounts' in b && Array.isArray(b.accounts)))
+    .toBe(true);
+});
