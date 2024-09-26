@@ -150,3 +150,20 @@ it(investmentAccount, 'has a withdrawal transaction that updates the balance', a
 
   expect(account.balance).toBe(2300);
 })
+
+const tranfer = describe({name: 'transfer', suite: transactions});
+
+it(tranfer, 'withdraws money from one account and deposits money into another', async () => {
+  const fromAccount = addAccountMethods(getCheckingAccount('Alice'));
+  const toAccount = getInvestmentAccount('Bob');
+  const transaction: TransactionRequest = {
+    type: TransactionType.TRANSFER,
+    amount: 500,
+    to: toAccount
+  };
+
+  await fromAccount.applyTransaction(transaction);
+
+  expect(fromAccount.balance).toBe(500);
+  expect(toAccount.balance).toBe(2500);
+});

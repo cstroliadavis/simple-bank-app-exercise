@@ -5,20 +5,25 @@ import {
   Transaction,
   TransactionRequest
 } from "./bank.types.ts";
+import {isTransfer} from './bank.type-guards.ts';
 
 /**
  *  Sets up the initial transaction for the account if one does not exist
  * @param account
  */
 const setupInitialTransaction = (account: BankAccount) => {
-  if(account.transactions.length) return;
+  const hasTransactions = account
+    .transactions
+    .filter((transaction) => transaction.status !== TransactionStatus.PENDING).length;
+
+  if(hasTransactions) return;
 
   account.transactions = [{
     date: new Date(),
     status: TransactionStatus.COMPLETE,
     type: TransactionType.OPENING_BALANCE,
     amount: account.balance
-  }];
+  }, ...account.transactions];
 }
 
 /**
@@ -42,6 +47,8 @@ const addAmount = (sum: number, transaction: Transaction) => sum + transaction.a
  * @param request
  */
 const updateBalance = async (account: BankAccount, request: TransactionRequest) => {
+  setupInitialTransaction(account);
+
   const currentBalance = account.balance;
   const transactionSum = account.transactions
     .filter(completedTransaction)
@@ -74,15 +81,25 @@ export const addAccountMethods = (bankAccount: BankAccount): BankAccountWithMeth
   const account: BankAccountWithMethods = {
     ...bankAccount,
     async applyTransaction (request: TransactionRequest) {
-      setupInitialTransaction(account);
-
       account.transactions = [...account.transactions, {
         date: new Date(),
         status: TransactionStatus.PENDING,
         ...request,
       }];
 
-      await updateBalance(account, request);
+      if(isTransfer(request)) {
+        const withdrawalRequest: TransactionRequest = { type: TransactionType.WITHDRAWAL, amount: -request.amount };
+        const depositRequest: TransactionRequest = { type: TransactionType.DEPOSIT, amount: request.amount };
+
+        // TODO: fix so that nothing will get updated until all transactions are posted (I knew there was something I was forgetting)
+        await Promise.all([
+          updateBalance(account, withdrawalRequest),
+          updateBalance(request.to, depositRequest),
+        ]);
+      }
+      else {
+        await updateBalance(account, request);
+      }
     }
   };
 

@@ -4,9 +4,9 @@ import type {
   CheckingAccount,
   CorporateInvestmentAccount,
   IndividualInvestmentAccount,
-  InvestmentAccount
+  InvestmentAccount, TransactionRequest, Transfer
 } from './bank.types.ts';
-import {BankAccountSubType, BankAccountType} from './bank.enums.ts';
+import {BankAccountSubType, BankAccountType, TransactionType} from './bank.enums.ts';
 
 export const hasWithdrawalLimit = (account: BankAccount): account is AccountWithLimit => {
   return 'withdrawalLimit' in account;
@@ -26,4 +26,8 @@ export const isIndividualInvestmentAccount = (account: BankAccount): account is 
 
 export const isCorporateInvestmentAccount = (account: BankAccount): account is CorporateInvestmentAccount => {
   return isInvestmentAccount(account) && account.subType === BankAccountSubType.CORPORATE;
+}
+
+export const isTransfer = (request: TransactionRequest): request is Transfer => {
+  return request.type === TransactionType.TRANSFER;
 }
