@@ -10,9 +10,13 @@ export type Bank = {
   accounts: BankAccount[];
 }
 
-export type Transaction = {
+export type TransactionRequest = {
   type: TransactionType;
   amount: number;
+  to?: BankAccount;
+}
+
+export type Transaction = TransactionRequest & {
   date: Date;
   status: TransactionStatus;
 }
@@ -43,7 +47,7 @@ export type AccountWithLimit = BankAccount & {
 }
 
 export type BankAccountWithMethods = BankAccount & {
-  applyTransaction: (transaction: Transaction) => void;
+  applyTransaction:  (transaction: TransactionRequest) => Promise<void>;
 }
 
 export type CheckingAccount = BankAccount & {

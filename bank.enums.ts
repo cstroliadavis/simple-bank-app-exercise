@@ -5,6 +5,7 @@ export enum TransactionStatus {
 }
 
 export enum TransactionType {
+  OPENING_BALANCE = 'opening balance',
   DEPOSIT = 'deposit',
   WITHDRAWAL = 'withdrawal',
   TRANSFER = 'transfer',

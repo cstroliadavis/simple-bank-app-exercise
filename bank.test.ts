@@ -1,7 +1,8 @@
 import {describe, it} from '@std/testing/bdd';
 import {expect} from '@std/expect';
-import {Bank, BankAccount} from './bank.types.ts';
-import {BankAccountSubType, BankAccountType} from './bank.enums.ts';
+import {Bank, BankAccount, Transaction, TransactionRequest} from './bank.types.ts';
+import {BankAccountSubType, BankAccountType, TransactionType} from './bank.enums.ts';
+import {addAccountMethods} from './bank.ts';
 
 const getTestData = (): Record<string, Bank> => ({
   bankA: {
@@ -52,6 +53,10 @@ const getTestData = (): Record<string, Bank> => ({
 const getAllTestDataAccounts = (): BankAccount[] =>
   Object.values(getTestData()).flatMap((b) => b.accounts);
 
+const getCheckingAccount = (owner?: string): BankAccount =>
+  getAllTestDataAccounts()
+    .find((a) => a.type === BankAccountType.CHECKING && !owner || a.owner === owner)!;
+
 const bank = describe({name: 'bank'});
 
 // Mostly putting these tests in because they were described in the requirements, however,
@@ -94,4 +99,15 @@ it.skip(bankAccount, 'can only be checking or investment', () => {
 
 // going to skip the sort of grunt testing being done above for now and do some real TFD.
 
+const transactions = describe({name: 'transactions', suite: bank});
 
+const checkingAccount = describe({name: 'checking account', suite: transactions});
+
+it(checkingAccount, 'has a deposit transaction that updates the balance', async () => {
+  const account = addAccountMethods(getCheckingAccount('Alice'));
+  const transaction: TransactionRequest = { type: TransactionType.DEPOSIT, amount: 200 };
+
+  await account.applyTransaction(transaction);
+
+  expect(account.balance).toBe(1200);
+});
