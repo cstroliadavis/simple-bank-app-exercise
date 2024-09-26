@@ -1,6 +1,6 @@
 import {describe, it} from '@std/testing/bdd';
 import {expect} from '@std/expect';
-import {Bank, BankAccount, Transaction, TransactionRequest} from './bank.types.ts';
+import {Bank, BankAccount, TransactionRequest} from './bank.types.ts';
 import {BankAccountSubType, BankAccountType, TransactionType} from './bank.enums.ts';
 import {addAccountMethods} from './bank.ts';
 
@@ -53,9 +53,19 @@ const getTestData = (): Record<string, Bank> => ({
 const getAllTestDataAccounts = (): BankAccount[] =>
   Object.values(getTestData()).flatMap((b) => b.accounts);
 
+const byAccountType = (type: BankAccountType) => (a: BankAccount) => a.type === type;
+const byOwnerIfSpecified = (owner?: string) => (a: BankAccount) => !owner || a.owner === owner;
+
+
 const getCheckingAccount = (owner?: string): BankAccount =>
   getAllTestDataAccounts()
-    .find((a) => a.type === BankAccountType.CHECKING && !owner || a.owner === owner)!;
+    .filter(byAccountType(BankAccountType.CHECKING))
+    .find(byOwnerIfSpecified(owner))!;
+
+const getInvestmentAccount = (owner?: string): BankAccount =>
+  getAllTestDataAccounts()
+    .filter(byAccountType(BankAccountType.INVESTMENT))
+    .find(byOwnerIfSpecified(owner))!;
 
 const bank = describe({name: 'bank'});
 
@@ -111,3 +121,32 @@ it(checkingAccount, 'has a deposit transaction that updates the balance', async 
 
   expect(account.balance).toBe(1200);
 });
+
+it(checkingAccount, 'has a withdrawal transaction that updates the balance', async () => {
+  const account = addAccountMethods(getCheckingAccount('Charlie'));
+  const transaction: TransactionRequest = { type: TransactionType.WITHDRAWAL, amount: -500 };
+
+  await account.applyTransaction(transaction);
+
+  expect(account.balance).toBe(1000);
+})
+
+const investmentAccount = describe({name: 'investment account', suite: transactions});
+
+it(investmentAccount, 'has a deposit transaction that updates the balance', async () => {
+  const account = addAccountMethods(getInvestmentAccount('Bob'));
+  const transaction: TransactionRequest = { type: TransactionType.DEPOSIT, amount: 100 };
+
+  await account.applyTransaction(transaction);
+
+  expect(account.balance).toBe(2100);
+});
+
+it(investmentAccount, 'has a withdrawal transaction that updates the balance', async () => {
+  const account = addAccountMethods(getInvestmentAccount('Diana'));
+  const transaction: TransactionRequest = { type: TransactionType.WITHDRAWAL, amount: -200 };
+
+  await account.applyTransaction(transaction);
+
+  expect(account.balance).toBe(2300);
+})
