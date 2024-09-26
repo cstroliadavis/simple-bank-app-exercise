@@ -1,6 +1,6 @@
 import {describe, it} from '@std/testing/bdd';
 import {expect} from '@std/expect';
-import {Bank} from './bank.types.ts';
+import {Bank, BankAccount} from './bank.types.ts';
 import {BankAccountSubType, BankAccountType} from './bank.enums.ts';
 
 const getTestData = (): Record<string, Bank> => ({
@@ -49,6 +49,9 @@ const getTestData = (): Record<string, Bank> => ({
   }
 });
 
+const getAllTestDataAccounts = (): BankAccount[] =>
+  Object.values(getTestData()).flatMap((b) => b.accounts);
+
 const bank = describe({name: 'bank'});
 
 // Mostly putting these tests in because they were described in the requirements, however,
@@ -62,18 +65,30 @@ it(bank, 'has a name', () => {
 
 it(bank, 'can have several accounts', () => {
   const testData = getTestData();
-¬
+
   expect(Object.values(testData).every((b) => 'accounts' in b && Array.isArray(b.accounts)))
     .toBe(true);
 });
 
-const bankAccount = describe({name: 'accounts', suite: bank});
+const bankAccount = describe({name: 'account', suite: bank});
 
 it(bankAccount, 'has an owner', () => {
-  const testData = getTestData();
+  const allAccounts = getAllTestDataAccounts();
 
-  const allAccounts = Object.values(testData).flatMap((b) => b.accounts);
   expect(allAccounts.every(
     (account) => 'owner' in account && typeof account.owner === 'string' && account.owner)
   ).toBe(true);
 });
+
+it(bankAccount, 'can be checking or investment', () => {
+  const allAccounts= getAllTestDataAccounts();
+
+  expect(allAccounts.every(
+    (account) => account.type === BankAccountType.CHECKING || account.type === BankAccountType.INVESTMENT
+  )).toBe(true);
+});
+
+it.skip(bankAccount, 'can only be checking or investment', () => {
+  // Since we are not actually inputting data here, we can't test this, yet.
+});
+
