@@ -1,5 +1,5 @@
-import {describe, it } from '@std/testing/bdd';
-import { expect } from '@std/expect';
+import {describe, it} from '@std/testing/bdd';
+import {expect} from '@std/expect';
 import {Bank} from './bank.types.ts';
 import {BankAccountSubType, BankAccountType} from './bank.enums.ts';
 
@@ -49,20 +49,31 @@ const getTestData = (): Record<string, Bank> => ({
   }
 });
 
-const bank = describe({ name: 'bank' });
+const bank = describe({name: 'bank'});
 
 // Mostly putting these tests in because they were described in the requirements, however,
 // I would rarely test types for compliance.
 it(bank, 'has a name', () => {
   const testData = getTestData();
 
-  expect(Object.values(testData).every((b) => 'name' in b && typeof b.name === 'string'))
+  expect(Object.values(testData).every((b) => 'name' in b && typeof b.name === 'string' && b.name))
     .toBe(true);
-})
+});
 
 it(bank, 'can have several accounts', () => {
   const testData = getTestData();
-
+¬
   expect(Object.values(testData).every((b) => 'accounts' in b && Array.isArray(b.accounts)))
     .toBe(true);
+});
+
+const bankAccount = describe({name: 'accounts', suite: bank});
+
+it(bankAccount, 'has an owner', () => {
+  const testData = getTestData();
+
+  const allAccounts = Object.values(testData).flatMap((b) => b.accounts);
+  expect(allAccounts.every(
+    (account) => 'owner' in account && typeof account.owner === 'string' && account.owner)
+  ).toBe(true);
 });
